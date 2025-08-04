@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Silhig | Supported by Champions</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+        
+        :root {
+            --gold: #FFD700;
+            --silver: #C0C0C0;
+            --bronze: #CD7F32;
+            --dark: #1A1A2E;
+            --light: #F1F1F6;
+            --accent: #4CC9F0;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--dark);
+            color: var(--light);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .glow {
+            text-shadow: 0 0 10px var(--accent), 0 0 20px var(--accent);
+        }
+        
+        header {
+            background: linear-gradient(135deg, #16213E, #1A1A2E);
+            padding: 5rem 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, transparent 0%, rgba(76, 201, 240, 0.1) 70%);
+            animation: rotate 20s linear infinite;
+        }
+        
+        @keyframes rotate {
+            100% { transform: rotate(360deg); }
+        }
+        
+        h1 {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+        
+        .price-tag {
+            display: inline-block;
+            background-color: var(--gold);
+            color: var(--dark);
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 1.5rem;
+            margin: 1rem 0;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+        }
+        
+        .supporters-section {
+            padding: 4rem 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .supporter-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(76, 201, 240, 0.2);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .supporter-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(76, 201, 240, 0.2);
+        }
+        
+        .supporter-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 3rem;
+        }
+        
+        .supporter-name {
+            font-size: 1.2rem;
+            padding: 1rem;
+            background: rgba(76, 201, 240, 0.1);
+            border-radius: 8px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .supporter-name::after {
+            content: "₱10";
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.8rem;
+            color: var(--gold);
+            font-weight: bold;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+            vertical-align: middle;
+        }
+        
+        .badge-gold {
+            background-color: var(--gold);
+            color: var(--dark);
+        }
+        
+        footer {
+            text-align: center;
+            padding: 2rem;
+            margin-top: 3rem;
+            border-top: 1px solid rgba(76, 201, 240, 0.2);
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            .supporter-list {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1 class="glow">Project Silhig</h1>
+        <p>Supported by these visionary champions</p>
+        <div class="price-tag">₱10 Club</div>
+    </header>
+    
+    <section class="supporters-section">
+        <div class="supporter-card">
+            <h2>Our Gold Supporters <span class="badge badge-gold">Early Believers</span></h2>
+            <p>These pioneers saw the vision first and made Project Silhig possible with their ₱10 contributions.</p>
+            
+            <div class="supporter-list">
+                <div class="supporter-name">Salasain</div>
+                <div class="supporter-name">Jairi</div>
+                <div class="supporter-name">Klein</div>
+                <div class="supporter-name">Erica</div>
+                <div class="supporter-name">Harad</div>
+                <div class="supporter-name">Isalin</div>
+                <div class="supporter-name">Leon</div>
+                <div class="supporter-name">Ascali</div>
+                <div class="supporter-name">Derayo</div>
+            </div>
+        </div>
+    </section>
+    
+    <footer>
+        <p>Join this elite group with your ₱10 contribution</p>
+        <p>© Project Silhig | The ₱10 Revolution</p>
+    </footer>
+</body>
+</html>
