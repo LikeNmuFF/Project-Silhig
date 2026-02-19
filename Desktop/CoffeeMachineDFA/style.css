@@ -1,0 +1,677 @@
+
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Roboto+Mono:wght@300;400;500;600&display=swap');
+    
+    :root {
+        --coffee-dark: #4B2F1A;
+        --coffee-medium: #6F4E37;
+        --coffee-light: #A67C52;
+        --coffee-cream: #D4B896;
+        --coffee-milk: #F5E9D9;
+        --espresso: #2C1810;
+        --latte: #E6D3B9;
+        --cappuccino: #C8AD7F;
+        --mocha: #5C3A21;
+        --green: #2ECC71;
+        --red: #E74C3C;
+        --blue: #3498DB;
+        --purple: #9B59B6;
+    }
+    
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+    
+    body {
+        background: linear-gradient(135deg, var(--coffee-dark), var(--coffee-medium));
+        min-height: 100vh;
+        font-family: 'Poppins', sans-serif;
+        padding: 20px;
+        color: var(--coffee-milk);
+        overflow-x: hidden;
+    }
+    
+    /* Coffee Beans Background */
+    .coffee-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        opacity: 0.1;
+        background-image: 
+            radial-gradient(circle at 20% 30%, var(--coffee-light) 2px, transparent 3px),
+            radial-gradient(circle at 80% 70%, var(--coffee-light) 2px, transparent 3px),
+            radial-gradient(circle at 40% 80%, var(--coffee-light) 2px, transparent 3px),
+            radial-gradient(circle at 60% 20%, var(--coffee-light) 2px, transparent 3px);
+        background-size: 150px 150px;
+    }
+    
+    /* Coffee Cup Loading Animation */
+    .coffee-loading {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 4rem;
+        z-index: 1000;
+        animation: coffeePulse 2s infinite;
+        display: none;
+    }
+    
+    @keyframes coffeePulse {
+        0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        50% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.7; }
+    }
+    
+    /* Header */
+    .header {
+        text-align: center;
+        background: rgba(75, 47, 26, 0.9);
+        padding: 30px;
+        border-radius: 25px;
+        margin-bottom: 30px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        animation: slideDown 1s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        position: relative;
+        overflow: hidden;
+        border: 3px solid var(--coffee-light);
+    }
+    
+    .header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(212, 184, 150, 0.3), transparent);
+        animation: shine 4s infinite;
+    }
+    
+    @keyframes shine {
+        0% { left: -100%; }
+        20%, 100% { left: 100%; }
+    }
+    
+    .header h1 {
+        font-size: 3rem;
+        background: linear-gradient(45deg, var(--coffee-cream), var(--coffee-light));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 15px;
+        text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3);
+    }
+    
+    .header h2 {
+        color: var(--coffee-cream);
+        font-weight: 400;
+        margin-bottom: 20px;
+    }
+    
+    /* Main Container */
+    .container {
+        display: grid;
+        grid-template-columns: 1.2fr 0.8fr;
+        gap: 25px;
+        max-width: 1600px;
+        margin: 0 auto;
+    }
+    
+    /* Coffee Panels */
+    .panel {
+        background: rgba(75, 47, 26, 0.9);
+        border-radius: 25px;
+        padding: 30px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        border: 3px solid var(--coffee-light);
+        backdrop-filter: blur(10px);
+        animation: panelFloat 0.8s ease-out;
+        transition: transform 0.3s ease;
+    }
+    
+    @keyframes panelFloat {
+        0% { opacity: 0; transform: translateY(50px) scale(0.9); }
+        100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    
+    .panel:hover {
+        transform: translateY(-5px);
+    }
+    
+    .panel h3 {
+        color: var(--coffee-cream);
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+        border-bottom: 3px solid;
+        border-image: linear-gradient(90deg, var(--coffee-light), transparent) 1;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        font-size: 1.5rem;
+    }
+    
+    /* Coffee Machine */
+    .coffee-machine {
+        position: relative;
+        height: 320px;
+        background: linear-gradient(145deg, #3D2B1F, #2C1810);
+        border-radius: 20px;
+        margin: 25px 0;
+        overflow: hidden;
+        border: 12px solid #2C1810;
+        box-shadow: 
+            inset 0 0 30px rgba(0, 0, 0, 0.7),
+            0 15px 40px rgba(0, 0, 0, 0.5),
+            0 0 0 5px rgba(212, 184, 150, 0.3);
+    }
+    
+    .machine-display {
+        position: absolute;
+        top: 50px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 320px;
+        height: 140px;
+        background: rgba(20, 10, 5, 0.95);
+        border-radius: 15px;
+        padding: 25px;
+        border: 3px solid var(--coffee-light);
+        box-shadow: 
+            inset 0 0 25px rgba(212, 184, 150, 0.4),
+            0 0 40px rgba(212, 184, 150, 0.3);
+        color: var(--coffee-cream);
+        font-family: 'Roboto Mono', monospace;
+        text-align: center;
+        overflow: hidden;
+    }
+    
+    .display-scanline {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background: rgba(212, 184, 150, 0.5);
+        animation: scanline 2s infinite linear;
+    }
+    
+    @keyframes scanline {
+        0% { top: 0; }
+        100% { top: 100%; }
+    }
+    
+    .state-display {
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin: 15px 0;
+        text-shadow: 0 0 15px var(--coffee-cream);
+        color: var(--coffee-cream);
+    }
+    
+    .coffee-cup {
+        position: absolute;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100px;
+        height: 80px;
+        background: linear-gradient(145deg, #8B7355, #6F4E37);
+        border-radius: 0 0 20px 20px;
+        border: 6px solid #2C1810;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+        transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    }
+    
+    .coffee-liquid {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        background: linear-gradient(to top, var(--espresso), var(--coffee-medium));
+        border-radius: 0 0 15px 15px;
+        transition: height 1.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    
+    .steam {
+        position: absolute;
+        top: -40px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80px;
+        height: 40px;
+        opacity: 0;
+    }
+    
+    .steam-particle {
+        position: absolute;
+        width: 15px;
+        height: 30px;
+        background: rgba(245, 233, 217, 0.9);
+        border-radius: 50%;
+        filter: blur(5px);
+        animation: steamRise 3s infinite;
+    }
+    
+    @keyframes steamRise {
+        0% { transform: translateY(0) scale(1); opacity: 0; }
+        50% { opacity: 0.8; }
+        100% { transform: translateY(-100px) scale(2); opacity: 0; }
+    }
+    
+    /* Coffee Selection */
+    .coffee-selection {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+        margin: 30px 0;
+    }
+    
+    .coffee-option {
+        background: linear-gradient(145deg, var(--coffee-medium), var(--coffee-dark));
+        border-radius: 20px;
+        padding: 25px 15px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        border: 3px solid transparent;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .coffee-option::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(212, 184, 150, 0.2), transparent);
+        transition: left 0.6s;
+    }
+    
+    .coffee-option:hover::before {
+        left: 100%;
+    }
+    
+    .coffee-option:hover {
+        transform: translateY(-10px) scale(1.05);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        border-color: var(--coffee-light);
+    }
+    
+    .coffee-option.selected {
+        border-color: var(--green);
+        background: linear-gradient(145deg, rgba(46, 204, 113, 0.2), var(--coffee-dark));
+        animation: selectedBounce 0.6s ease;
+    }
+    
+    @keyframes selectedBounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-15px); }
+    }
+    
+    .coffee-icon {
+        font-size: 3rem;
+        margin-bottom: 15px;
+        transition: transform 0.5s ease;
+        color: var(--coffee-cream);
+    }
+    
+    .coffee-option:hover .coffee-icon {
+        transform: rotate(15deg) scale(1.2);
+    }
+    
+    .coffee-name {
+        font-weight: 600;
+        color: var(--coffee-cream);
+        font-size: 1.3rem;
+    }
+    
+    /* Controls */
+    .controls {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+        margin-top: 30px;
+    }
+    
+    .control-btn {
+        padding: 25px 15px;
+        border: none;
+        border-radius: 20px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        color: var(--coffee-dark);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .control-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        transition: left 0.5s;
+    }
+    
+    .control-btn:hover::before {
+        left: 100%;
+    }
+    
+    .control-btn:hover:not(:disabled) {
+        transform: translateY(-8px) scale(1.05);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    }
+    
+    .control-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none !important;
+    }
+    
+    .control-btn:active:not(:disabled) {
+        transform: translateY(0) scale(0.95);
+    }
+    
+    .btn-start { background: linear-gradient(145deg, var(--green), #27AE60); }
+    .btn-select { background: linear-gradient(145deg, var(--blue), #2980B9); }
+    .btn-brew { background: linear-gradient(145deg, var(--red), #C0392B); }
+    .btn-done { background: linear-gradient(145deg, #F39C12, #D68910); }
+    .btn-clean { background: linear-gradient(145deg, var(--purple), #8E44AD); }
+    .btn-reset { background: linear-gradient(145deg, var(--coffee-light), var(--coffee-medium)); }
+    
+    .btn-icon {
+        font-size: 2rem;
+        filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.3));
+    }
+    
+    /* Coffee DFA Table */
+    .dfa-table-container {
+        background: rgba(75, 47, 26, 0.8);
+        border-radius: 20px;
+        padding: 25px;
+        margin: 25px 0;
+        overflow: hidden;
+        position: relative;
+        border: 2px solid var(--coffee-light);
+    }
+    
+    .dfa-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-family: 'Roboto Mono', monospace;
+        animation: tableSlideIn 1s ease-out;
+    }
+    
+    @keyframes tableSlideIn {
+        from { transform: translateX(-100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    
+    .dfa-table th {
+        background: linear-gradient(145deg, var(--coffee-medium), var(--coffee-dark));
+        color: var(--coffee-cream);
+        padding: 20px;
+        text-align: center;
+        font-size: 1.2rem;
+        border: 2px solid var(--coffee-light);
+    }
+    
+    .dfa-table td {
+        padding: 18px;
+        text-align: center;
+        border: 2px solid var(--coffee-medium);
+        font-size: 1.1rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        position: relative;
+        color: var(--coffee-cream);
+    }
+    
+    .dfa-table tr:nth-child(even) {
+        background: rgba(107, 79, 55, 0.5);
+    }
+    
+    .dfa-table tr:nth-child(odd) {
+        background: rgba(75, 47, 26, 0.5);
+    }
+    
+    .state-cell {
+        font-weight: bold;
+        color: var(--coffee-cream);
+    }
+    
+    .transition-cell {
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .transition-cell:hover {
+        background: rgba(212, 184, 150, 0.2) !important;
+        transform: scale(1.05);
+    }
+    
+    .transition-cell.active {
+        background: linear-gradient(145deg, var(--green), #27AE60) !important;
+        color: var(--coffee-dark);
+        animation: transitionGlow 0.5s ease;
+        box-shadow: 0 0 20px rgba(46, 204, 113, 0.5);
+    }
+    
+    @keyframes transitionGlow {
+        0% { transform: scale(1); box-shadow: 0 0 0 rgba(46, 204, 113, 0.5); }
+        50% { transform: scale(1.1); box-shadow: 0 0 30px rgba(46, 204, 113, 0.8); }
+        100% { transform: scale(1); box-shadow: 0 0 20px rgba(46, 204, 113, 0.5); }
+    }
+    
+    .accept-state {
+        position: relative;
+        color: var(--green);
+    }
+    
+    .accept-state::after {
+        content: '✓';
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        color: var(--green);
+        font-weight: bold;
+        animation: checkmarkPulse 2s infinite;
+    }
+    
+    @keyframes checkmarkPulse {
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.3); opacity: 0.8; }
+    }
+    
+    /* History Log */
+    .history-log {
+        max-height: 250px;
+        overflow-y: auto;
+        margin-top: 25px;
+        padding-right: 10px;
+    }
+    
+    .log-entry {
+        background: rgba(107, 79, 55, 0.8);
+        padding: 20px;
+        margin-bottom: 15px;
+        border-radius: 15px;
+        border-left: 5px solid var(--coffee-light);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        animation: logSlideIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    @keyframes logSlideIn {
+        from { transform: translateX(-100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    
+    .log-entry:hover {
+        transform: translateX(10px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    }
+    
+    .log-transition {
+        font-weight: 600;
+        color: var(--coffee-cream);
+        font-size: 1.1rem;
+        margin-bottom: 5px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .log-time {
+        color: var(--coffee-light);
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    /* Database Controls */
+    .database-controls {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+        margin-top: 25px;
+    }
+    
+    .db-btn {
+        padding: 18px;
+        background: linear-gradient(145deg, var(--coffee-medium), var(--coffee-dark));
+        color: var(--coffee-cream);
+        border: 2px solid var(--coffee-light);
+        border-radius: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    }
+    
+    .db-btn:hover {
+        transform: translateY(-5px) scale(1.05);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+        background: linear-gradient(145deg, var(--coffee-light), var(--coffee-medium));
+    }
+    
+    .db-btn:active {
+        transform: translateY(0) scale(0.98);
+    }
+    
+    .db-btn i {
+        font-size: 1.3rem;
+    }
+    
+    /* Full Width Panel */
+    .full-panel {
+        grid-column: 1 / -1;
+        margin-top: 30px;
+    }
+    
+    /* Coffee Info Panel */
+    .coffee-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 20px;
+        padding: 15px;
+        background: rgba(107, 79, 55, 0.8);
+        border-radius: 15px;
+        border: 2px solid var(--coffee-light);
+    }
+    
+    .coffee-stats {
+        display: flex;
+        gap: 20px;
+    }
+    
+    .stat-box {
+        background: rgba(75, 47, 26, 0.9);
+        padding: 15px;
+        border-radius: 10px;
+        text-align: center;
+        min-width: 120px;
+        border: 1px solid var(--coffee-light);
+    }
+    
+    .stat-value {
+        font-size: 2rem;
+        font-weight: bold;
+        color: var(--coffee-cream);
+    }
+    
+    .stat-label {
+        font-size: 0.9rem;
+        color: var(--coffee-light);
+    }
+    
+    /* Responsive */
+    @media (max-width: 1200px) {
+        .container {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .coffee-selection {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .controls {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .database-controls {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .dfa-table {
+            font-size: 0.9rem;
+        }
+        
+        .dfa-table th, .dfa-table td {
+            padding: 12px;
+        }
+        
+        .coffee-stats {
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .header h1 {
+            font-size: 2rem;
+        }
+        
+        .coffee-selection {
+            grid-template-columns: 1fr;
+        }
+        
+        .controls, .database-controls {
+            grid-template-columns: 1fr;
+        }
+    }
