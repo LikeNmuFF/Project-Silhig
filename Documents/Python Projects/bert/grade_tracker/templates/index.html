@@ -1,0 +1,1605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GradeVault — Academic Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f14;
+    --surface: #13161e;
+    --surface2: #1a1e28;
+    --surface3: #222738;
+    --border: #2a2f40;
+    --accent: #c8f04e;
+    --accent2: #5de8c8;
+    --accent3: #f06ec8;
+    --text: #e8ecf4;
+    --text-muted: #7a849a;
+    --text-dim: #4a5268;
+    --red: #f06e6e;
+    --yellow: #f0c84e;
+    --radius: 14px;
+    --radius-sm: 8px;
+    --transition: 0.22s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* Noise texture overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.4;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    inset: auto auto -140px -100px;
+    width: 420px;
+    height: 420px;
+    background:
+      radial-gradient(circle, rgba(200, 240, 78, 0.16) 0%, rgba(200, 240, 78, 0) 70%);
+    pointer-events: none;
+    z-index: 0;
+    animation: driftGlow 16s ease-in-out infinite;
+  }
+
+  /* Layout */
+  .layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    min-height: 100vh;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 28px 0;
+    display: flex;
+    flex-direction: column;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+  }
+
+  .logo {
+    padding: 0 24px 32px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo-mark {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .logo-icon {
+    width: 36px;
+    height: 36px;
+    background: var(--accent);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #0d0f14;
+    font-size: 18px;
+  }
+
+  .logo-sub {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  .nav {
+    padding: 20px 16px;
+    flex: 1;
+  }
+
+  .nav-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    padding: 0 8px;
+    margin-bottom: 8px;
+    margin-top: 16px;
+  }
+
+  .nav-btn {
+    width: 100%;
+    text-align: left;
+    padding: 10px 12px;
+    border-radius: var(--radius-sm);
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .nav-btn:hover { background: var(--surface2); color: var(--text); }
+  .nav-btn.active { background: var(--surface3); color: var(--accent); }
+  .nav-btn .icon { font-size: 16px; width: 20px; text-align: center; }
+
+  /* GPA badge in sidebar */
+  .gpa-widget {
+    margin: 16px;
+    padding: 16px;
+    background: linear-gradient(135deg, var(--surface2), var(--surface3));
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+  }
+
+  .gpa-widget-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+  }
+
+  .gpa-widget-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .gpa-widget-sub {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+
+  /* Main content */
+  .main {
+    padding: 36px 40px;
+    overflow-y: auto;
+  }
+
+  /* Page header */
+  .page-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 36px;
+  }
+
+  .page-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: var(--text);
+  }
+
+  .page-subtitle {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+
+  /* Stats grid */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    transition: var(--transition);
+  }
+
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--card-accent, var(--accent));
+  }
+
+  .stat-card:hover { transform: translateY(-2px); border-color: var(--surface3); }
+
+  .stat-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+  }
+
+  .stat-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1;
+  }
+
+  .stat-sub {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+
+  /* Subjects */
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 600;
+  }
+
+  .btn {
+    padding: 10px 20px;
+    border-radius: 50px;
+    border: none;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    transition: var(--transition);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #0d0f14;
+  }
+
+  .btn-primary:hover { background: #d4f562; transform: translateY(-1px); }
+
+  .btn-ghost {
+    background: var(--surface2);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+  }
+
+  .btn-ghost:hover { background: var(--surface3); color: var(--text); }
+
+  .btn-danger {
+    background: transparent;
+    color: var(--red);
+    border: 1px solid transparent;
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+
+  .btn-danger:hover { background: rgba(240, 110, 110, 0.1); border-color: var(--red); }
+
+  .btn-sm { padding: 6px 14px; font-size: 12px; }
+
+  /* Subject cards */
+  .subjects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .subject-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0;
+    overflow: hidden;
+    transition: var(--transition);
+    cursor: pointer;
+  }
+
+  .subject-card:hover { transform: translateY(-2px); border-color: var(--surface3); box-shadow: 0 12px 32px rgba(0,0,0,0.3); }
+
+  .subject-card-top {
+    padding: 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .subject-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 10px;
+  }
+
+  .subject-name {
+    font-weight: 600;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+  }
+
+  .subject-meta {
+    font-size: 11px;
+    color: var(--text-dim);
+    font-family: 'DM Mono', monospace;
+  }
+
+  .subject-card-body {
+    padding: 20px;
+  }
+
+  .grade-display {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+
+  .grade-big {
+    font-family: 'Playfair Display', serif;
+    font-size: 42px;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .grade-letter {
+    font-family: 'DM Mono', monospace;
+    font-size: 16px;
+    color: var(--text-muted);
+  }
+
+  .grade-bar {
+    height: 4px;
+    background: var(--surface3);
+    border-radius: 2px;
+    margin: 12px 0;
+    overflow: hidden;
+  }
+
+  .grade-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.8s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  .subject-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .goal-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 50px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+  }
+
+  .goal-badge.above { border-color: var(--accent); color: var(--accent); background: rgba(200,240,78,0.08); }
+  .goal-badge.below { border-color: var(--red); color: var(--red); background: rgba(240,110,110,0.08); }
+
+  /* Assignments table */
+  .assignments-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .assignments-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    padding: 12px 24px;
+    text-align: left;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    font-weight: 400;
+  }
+
+  td {
+    padding: 14px 24px;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+    transition: var(--transition);
+  }
+
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--surface2); }
+
+  .type-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 50px;
+    background: var(--surface3);
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+
+  .score-cell {
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  .score-good { color: var(--accent); }
+  .score-mid { color: var(--yellow); }
+  .score-bad { color: var(--red); }
+
+  .pending-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 50px;
+    background: rgba(240, 200, 78, 0.1);
+    color: var(--yellow);
+    border: 1px solid rgba(240, 200, 78, 0.3);
+  }
+
+  /* Modal */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.22s ease;
+    backdrop-filter: blur(4px);
+  }
+
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 32px;
+    width: 480px;
+    max-width: 90vw;
+    max-height: 80vh;
+    overflow-y: auto;
+    transform: translateY(16px) scale(0.97);
+    transition: transform 0.22s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  .modal-overlay.open .modal { transform: translateY(0) scale(1); }
+
+  .modal-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .modal-close {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+  }
+
+  .modal-close:hover { background: var(--surface3); color: var(--text); }
+
+  .form-group { margin-bottom: 16px; }
+
+  .form-label {
+    display: block;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+  }
+
+  .form-input {
+    width: 100%;
+    padding: 12px 16px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    transition: var(--transition);
+    outline: none;
+  }
+
+  .form-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(200,240,78,0.1); }
+  .form-input::placeholder { color: var(--text-dim); }
+
+  select.form-input { appearance: none; cursor: pointer; }
+
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  .color-picker-row {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 8px;
+  }
+
+  .color-swatch {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: var(--transition);
+  }
+
+  .color-swatch.selected { border-color: var(--text); transform: scale(1.1); }
+
+  .modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 24px;
+  }
+
+  /* Detail panel */
+  .detail-panel {
+    display: none;
+  }
+
+  .detail-panel.active { display: block; }
+
+  /* Chart */
+  .chart-wrapper {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+
+  .mini-bar-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 6px;
+    height: 80px;
+    margin-top: 16px;
+  }
+
+  .bar-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    height: 100%;
+    justify-content: flex-end;
+  }
+
+  .bar-fill {
+    width: 100%;
+    border-radius: 4px 4px 0 0;
+    transition: height 0.8s cubic-bezier(0.4,0,0.2,1);
+    min-height: 4px;
+  }
+
+  .bar-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    color: var(--text-dim);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 48px;
+    text-align: center;
+  }
+
+  /* Toast notifications */
+  .toast-container {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .toast {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 14px 20px;
+    font-size: 14px;
+    min-width: 260px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    animation: slideInToast 0.3s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  .toast.success { border-left: 3px solid var(--accent); }
+  .toast.error { border-left: 3px solid var(--red); }
+
+  @keyframes slideInToast {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+
+  @keyframes driftGlow {
+    0%, 100% { transform: translate3d(0, 0, 0) scale(1); opacity: 0.7; }
+    50% { transform: translate3d(110px, -60px, 0) scale(1.18); opacity: 1; }
+  }
+
+  /* Empty state */
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+  }
+
+  .empty-state-icon { font-size: 48px; margin-bottom: 16px; }
+  .empty-state h3 { font-family: 'Playfair Display', serif; font-size: 20px; margin-bottom: 8px; color: var(--text); }
+  .empty-state p { font-size: 14px; }
+
+  /* Pending upcoming */
+  .upcoming-list { display: flex; flex-direction: column; gap: 8px; }
+
+  .upcoming-item {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 13px;
+  }
+
+  .upcoming-name { font-weight: 500; }
+  .upcoming-sub { color: var(--text-dim); font-size: 12px; margin-top: 2px; }
+
+  .due-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 50px;
+    background: var(--surface3);
+    color: var(--text-muted);
+  }
+
+  /* What-if calculator */
+  .whatif-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .whatif-result {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    color: var(--accent);
+    font-weight: 700;
+    margin-top: 16px;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .layout { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+    .main { padding: 20px; }
+  }
+
+  /* Motion system */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes revealUp {
+    from {
+      opacity: 0;
+      transform: translate3d(0, 20px, 0) scale(0.985);
+      filter: blur(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translate3d(0, 0, 0) scale(1);
+      filter: blur(0);
+    }
+  }
+
+  [data-motion] {
+    opacity: 0;
+    transform: translate3d(0, 20px, 0) scale(0.985);
+    filter: blur(8px);
+    will-change: transform, opacity, filter;
+  }
+
+  [data-motion].motion-in {
+    animation: revealUp 0.62s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    animation-delay: var(--motion-delay, 0ms);
+  }
+
+  .view-section { display: none; }
+  .view-section.active { display: block; animation: fadeIn 0.3s ease; }
+
+  /* What-if section */
+  .whatif-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-top: 24px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+
+    [data-motion] {
+      opacity: 1;
+      transform: none;
+      filter: none;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="layout">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo" data-motion>
+      <div class="logo-mark">
+        <div class="logo-icon">📚</div>
+        GradeVault
+      </div>
+      <div class="logo-sub">Academic Tracker</div>
+    </div>
+
+    <div class="nav" data-motion>
+      <div class="nav-label">Navigate</div>
+      <button class="nav-btn active" onclick="showView('dashboard')" id="nav-dashboard">
+        <span class="icon">◈</span> Dashboard
+      </button>
+      <button class="nav-btn" onclick="showView('subjects')" id="nav-subjects">
+        <span class="icon">◇</span> Subjects
+      </button>
+      <button class="nav-btn" onclick="showView('assignments')" id="nav-assignments">
+        <span class="icon">◆</span> Assignments
+      </button>
+      <button class="nav-btn" onclick="showView('whatif')" id="nav-whatif">
+        <span class="icon">◉</span> What-If Calculator
+      </button>
+
+      <div class="nav-label" style="margin-top:24px;">Grade Scale</div>
+      <div style="padding: 8px; background: var(--surface2); border-radius: var(--radius-sm); border: 1px solid var(--border);">
+        <div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 8px;color:var(--text-muted)"><span>A</span><span style="font-family:'DM Mono',monospace">93–100</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 8px;color:var(--text-muted)"><span>B</span><span style="font-family:'DM Mono',monospace">83–89</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 8px;color:var(--text-muted)"><span>C</span><span style="font-family:'DM Mono',monospace">73–79</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 8px;color:var(--text-muted)"><span>D</span><span style="font-family:'DM Mono',monospace">65–72</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 8px;color:var(--text-muted)"><span>F</span><span style="font-family:'DM Mono',monospace">&lt;65</span></div>
+      </div>
+    </div>
+
+    <div class="gpa-widget" data-motion>
+      <div class="gpa-widget-label">Cumulative GPA</div>
+      <div class="gpa-widget-value" id="sidebar-gpa">—</div>
+      <div class="gpa-widget-sub" id="sidebar-gpa-sub">No grades yet</div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+
+    <!-- DASHBOARD VIEW -->
+    <div class="view-section active" id="view-dashboard">
+      <div class="page-header" data-motion>
+        <div>
+          <div class="page-title">Dashboard</div>
+          <div class="page-subtitle" id="dash-greeting">Welcome back — here's your academic snapshot.</div>
+        </div>
+        <button class="btn btn-primary" onclick="openModal('add-subject')">+ Add Subject</button>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card" style="--card-accent: var(--accent)" data-motion>
+          <div class="stat-label">Cumulative GPA</div>
+          <div class="stat-value" id="stat-gpa">—</div>
+          <div class="stat-sub">4.0 scale</div>
+        </div>
+        <div class="stat-card" style="--card-accent: var(--accent2)" data-motion>
+          <div class="stat-label">Subjects</div>
+          <div class="stat-value" id="stat-subjects">0</div>
+          <div class="stat-sub">This semester</div>
+        </div>
+        <div class="stat-card" style="--card-accent: var(--accent3)" data-motion>
+          <div class="stat-label">Graded</div>
+          <div class="stat-value" id="stat-graded">0</div>
+          <div class="stat-sub" id="stat-graded-sub">of 0 assignments</div>
+        </div>
+        <div class="stat-card" style="--card-accent: var(--yellow)" data-motion>
+          <div class="stat-label">Upcoming</div>
+          <div class="stat-value" id="stat-upcoming">0</div>
+          <div class="stat-sub">Pending assignments</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:32px;" id="dash-bottom">
+        <div class="chart-wrapper" data-motion>
+          <div class="section-title" style="font-size:16px;">Grade Overview</div>
+          <div class="mini-bar-chart" id="grade-chart">
+            <div class="empty-state" style="padding:20px;width:100%;"><p style="font-size:13px;">Add subjects to see chart</p></div>
+          </div>
+        </div>
+        <div class="chart-wrapper" data-motion>
+          <div class="section-title" style="font-size:16px;">Upcoming Deadlines</div>
+          <div class="upcoming-list" id="upcoming-list" style="margin-top:16px;">
+            <div class="empty-state" style="padding:20px;"><p style="font-size:13px;">No upcoming assignments</p></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-header" data-motion>
+        <div class="section-title">My Subjects</div>
+        <button class="btn btn-ghost btn-sm" onclick="showView('subjects')">View All →</button>
+      </div>
+      <div class="subjects-grid" id="dash-subjects-grid">
+        <div class="empty-state" style="grid-column:1/-1">
+          <div class="empty-state-icon">📖</div>
+          <h3>No subjects yet</h3>
+          <p>Add your first subject to get started tracking grades.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUBJECTS VIEW -->
+    <div class="view-section" id="view-subjects">
+      <div class="page-header" data-motion>
+        <div>
+          <div class="page-title">Subjects</div>
+          <div class="page-subtitle">Manage your courses and set grade goals.</div>
+        </div>
+        <button class="btn btn-primary" onclick="openModal('add-subject')">+ Add Subject</button>
+      </div>
+      <div class="subjects-grid" id="subjects-grid">
+        <div class="empty-state" style="grid-column:1/-1">
+          <div class="empty-state-icon">📖</div>
+          <h3>No subjects yet</h3>
+          <p>Click "Add Subject" to start tracking your courses.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ASSIGNMENTS VIEW -->
+    <div class="view-section" id="view-assignments">
+      <div class="page-header" data-motion>
+        <div>
+          <div class="page-title">Assignments</div>
+          <div class="page-subtitle">All grades across your subjects.</div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;">
+          <select class="form-input" id="filter-subject" style="width:auto;padding:8px 14px;" onchange="renderAssignmentsView()">
+            <option value="">All Subjects</option>
+          </select>
+          <button class="btn btn-primary" onclick="openAddAssignmentModal()">+ Add Grade</button>
+        </div>
+      </div>
+      <div class="assignments-section" data-motion>
+        <table>
+          <thead>
+            <tr>
+              <th>Assignment</th>
+              <th>Subject</th>
+              <th>Type</th>
+              <th>Score</th>
+              <th>Due Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="assignments-table-body">
+            <tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-muted);">No assignments yet.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- WHAT-IF VIEW -->
+    <div class="view-section" id="view-whatif">
+      <div class="page-header" data-motion>
+        <div>
+          <div class="page-title">What-If Calculator</div>
+          <div class="page-subtitle">Simulate future grades to see how they'll affect your average.</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+        <div>
+          <div class="form-group">
+            <label class="form-label">Select Subject</label>
+            <select class="form-input" id="whatif-subject" onchange="loadWhatIf()">
+              <option value="">Choose a subject...</option>
+            </select>
+          </div>
+          <div id="whatif-current" style="display:none;">
+            <div style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">
+              Current average: <strong id="whatif-current-grade" style="color:var(--text);font-family:'DM Mono',monospace;"></strong>
+            </div>
+            <div class="section-title" style="font-size:16px;margin-bottom:16px;">Add hypothetical grades:</div>
+            <div id="whatif-inputs"></div>
+            <button class="btn btn-ghost btn-sm" onclick="addWhatIfRow()" style="margin-top:8px;">+ Add another</button>
+          </div>
+        </div>
+        <div id="whatif-result-panel" style="display:none;">
+          <div class="chart-wrapper" data-motion>
+            <div class="section-title" style="font-size:16px;">Projected Average</div>
+            <div class="whatif-result" id="whatif-projected">—</div>
+            <div id="whatif-letter" style="font-family:'DM Mono',monospace;color:var(--text-muted);margin-top:4px;"></div>
+            <div style="margin-top:16px;font-size:13px;color:var(--text-muted)" id="whatif-change"></div>
+            <div class="grade-bar" style="margin-top:16px;"><div class="grade-bar-fill" id="whatif-bar" style="width:0%;background:var(--accent);"></div></div>
+          </div>
+          <div class="chart-wrapper" style="margin-top:0;" data-motion>
+            <div class="section-title" style="font-size:16px;margin-bottom:12px;">Goal Checker</div>
+            <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px;">What grade do you need on remaining assignments?</p>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Target Average (%)</label>
+                <input type="number" class="form-input" id="goal-target" placeholder="90" min="0" max="100" oninput="calculateNeeded()">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Remaining Assignments</label>
+                <input type="number" class="form-input" id="goal-remaining" placeholder="3" min="1" oninput="calculateNeeded()">
+              </div>
+            </div>
+            <div id="goal-result" style="font-size:14px;color:var(--text-muted);margin-top:8px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- MODALS -->
+<!-- Add Subject Modal -->
+<div class="modal-overlay" id="modal-add-subject">
+  <div class="modal">
+    <div class="modal-title">
+      Add Subject
+      <button class="modal-close" onclick="closeModal('add-subject')">✕</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Subject Name</label>
+      <input type="text" class="form-input" id="sub-name" placeholder="e.g. Calculus II">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Credit Hours</label>
+        <input type="number" class="form-input" id="sub-credits" value="3" min="1" max="6">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Grade Goal (%)</label>
+        <input type="number" class="form-input" id="sub-goal" placeholder="90" min="0" max="100">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Color</label>
+      <div class="color-picker-row" id="color-picker">
+        <div class="color-swatch selected" style="background:#c8f04e" data-color="#c8f04e" onclick="selectColor(this)"></div>
+        <div class="color-swatch" style="background:#5de8c8" data-color="#5de8c8" onclick="selectColor(this)"></div>
+        <div class="color-swatch" style="background:#f06ec8" data-color="#f06ec8" onclick="selectColor(this)"></div>
+        <div class="color-swatch" style="background:#6e9ff0" data-color="#6e9ff0" onclick="selectColor(this)"></div>
+        <div class="color-swatch" style="background:#f0c84e" data-color="#f0c84e" onclick="selectColor(this)"></div>
+        <div class="color-swatch" style="background:#f06e6e" data-color="#f06e6e" onclick="selectColor(this)"></div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('add-subject')">Cancel</button>
+      <button class="btn btn-primary" onclick="addSubject()">Add Subject</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Assignment Modal -->
+<div class="modal-overlay" id="modal-add-assignment">
+  <div class="modal">
+    <div class="modal-title">
+      Add Assignment
+      <button class="modal-close" onclick="closeModal('add-assignment')">✕</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Assignment Name</label>
+      <input type="text" class="form-input" id="asgn-name" placeholder="e.g. Midterm Exam">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Subject</label>
+        <select class="form-input" id="asgn-subject"></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Type</label>
+        <select class="form-input" id="asgn-type">
+          <option value="assignment">Assignment</option>
+          <option value="quiz">Quiz</option>
+          <option value="exam">Exam</option>
+          <option value="project">Project</option>
+          <option value="lab">Lab</option>
+          <option value="homework">Homework</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Score (%)</label>
+        <input type="number" class="form-input" id="asgn-score" placeholder="85" min="0" max="100">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Weight</label>
+        <input type="number" class="form-input" id="asgn-weight" value="1" min="0.1" step="0.1" placeholder="1">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Due Date</label>
+        <input type="date" class="form-input" id="asgn-due">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Status</label>
+        <select class="form-input" id="asgn-graded">
+          <option value="true">Graded</option>
+          <option value="false">Pending</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('add-assignment')">Cancel</button>
+      <button class="btn btn-primary" onclick="addAssignment()">Add Assignment</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast container -->
+<div class="toast-container" id="toast-container"></div>
+
+<script>
+let appData = { subjects: [], assignments: [], goals: {} };
+let stats = {};
+let selectedColor = '#c8f04e';
+let currentView = 'dashboard';
+
+function applyMotion(scope = document) {
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduceMotion) return;
+
+  const items = Array.from(scope.querySelectorAll('[data-motion]')).filter(el => {
+    const view = el.closest('.view-section');
+    return !view || view.classList.contains('active');
+  });
+
+  items.forEach((el, index) => {
+    el.classList.remove('motion-in');
+    el.style.setProperty('--motion-delay', `${Math.min(index * 70, 420)}ms`);
+    void el.offsetWidth;
+    el.classList.add('motion-in');
+  });
+}
+
+function animateCurrentView() {
+  applyMotion(document.querySelector('.sidebar'));
+  const activeView = document.getElementById(`view-${currentView}`);
+  if (activeView) applyMotion(activeView);
+}
+
+// Init
+async function init() {
+  await refreshData();
+  setGreeting();
+  animateCurrentView();
+}
+
+async function refreshData() {
+  const [dataRes, statsRes] = await Promise.all([
+    fetch('/api/data').then(r => r.json()),
+    fetch('/api/stats').then(r => r.json())
+  ]);
+  appData = dataRes;
+  stats = statsRes;
+  renderAll();
+  animateCurrentView();
+}
+
+function renderAll() {
+  renderSidebar();
+  renderDashboard();
+  renderSubjectsView();
+  renderAssignmentsView();
+  renderWhatIfSelects();
+  updateFilterSubjectSelect();
+}
+
+function setGreeting() {
+  const h = new Date().getHours();
+  const g = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+  document.getElementById('dash-greeting').textContent = `${g} — here's your academic snapshot.`;
+}
+
+// Sidebar
+function renderSidebar() {
+  const gpa = stats.cumulative_gpa;
+  document.getElementById('sidebar-gpa').textContent = gpa ? gpa.toFixed(2) : '—';
+  document.getElementById('sidebar-gpa-sub').textContent = gpa
+    ? `Based on ${stats.total_subjects} subject${stats.total_subjects !== 1 ? 's' : ''}`
+    : 'No grades yet';
+}
+
+// Dashboard
+function renderDashboard() {
+  document.getElementById('stat-gpa').textContent = stats.cumulative_gpa ? stats.cumulative_gpa.toFixed(2) : '—';
+  document.getElementById('stat-subjects').textContent = stats.total_subjects || 0;
+  document.getElementById('stat-graded').textContent = stats.graded || 0;
+  document.getElementById('stat-graded-sub').textContent = `of ${stats.total_assignments || 0} assignments`;
+  document.getElementById('stat-upcoming').textContent = (stats.pending || []).length;
+
+  renderSubjectCards('dash-subjects-grid');
+  renderGradeChart();
+  renderUpcoming();
+}
+
+function renderSubjectCards(containerId) {
+  const container = document.getElementById(containerId);
+  if (!appData.subjects.length) {
+    container.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
+      <div class="empty-state-icon">📖</div><h3>No subjects yet</h3>
+      <p>Add your first subject to start tracking grades.</p></div>`;
+    return;
+  }
+  container.innerHTML = appData.subjects.map(s => {
+    const pct = s.average || 0;
+    const scoreClass = pct >= 90 ? 'score-good' : pct >= 70 ? 'score-mid' : 'score-bad';
+    const goal = s.goal;
+    let goalBadge = '';
+    if (goal && s.average !== null) {
+      const diff = s.average - goal;
+      goalBadge = diff >= 0
+        ? `<span class="goal-badge above">↑ ${diff.toFixed(1)} above goal</span>`
+        : `<span class="goal-badge below">↓ ${Math.abs(diff).toFixed(1)} below goal</span>`;
+    } else if (goal) {
+      goalBadge = `<span class="goal-badge">Goal: ${goal}%</span>`;
+    }
+    return `
+    <div class="subject-card" data-motion onclick="openSubjectDetail('${s.id}')">
+      <div class="subject-card-top">
+        <div class="subject-name">
+          <span class="subject-dot" style="background:${s.color}"></span>
+          ${s.name}
+        </div>
+        <div style="display:flex;gap:6px;align-items:center;">
+          <span class="subject-meta">${s.credits} cr</span>
+          <button class="btn-danger" onclick="event.stopPropagation();deleteSubject('${s.id}')" style="background:transparent;border:none;color:var(--text-dim);cursor:pointer;padding:2px 6px;font-size:12px;">✕</button>
+        </div>
+      </div>
+      <div class="subject-card-body">
+        <div class="grade-display">
+          <div class="grade-big ${scoreClass}">${s.average !== null ? s.average : '—'}</div>
+          <div class="grade-letter">${s.letter}</div>
+        </div>
+        <div class="grade-bar">
+          <div class="grade-bar-fill" style="width:${pct}%;background:${s.color}"></div>
+        </div>
+        <div class="subject-footer">
+          <span>${(s.assignments || []).length} assignment${(s.assignments || []).length !== 1 ? 's' : ''}</span>
+          ${goalBadge}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderGradeChart() {
+  const chart = document.getElementById('grade-chart');
+  const graded = appData.subjects.filter(s => s.average !== null);
+  if (!graded.length) {
+    chart.innerHTML = `<div class="empty-state" style="padding:20px;width:100%;"><p style="font-size:13px;">Add subjects to see chart</p></div>`;
+    return;
+  }
+  chart.innerHTML = graded.map(s => `
+    <div class="bar-item" data-motion>
+      <div class="bar-fill" style="height:${s.average}%;background:${s.color};"></div>
+      <div class="bar-label">${s.name.split(' ')[0]}</div>
+    </div>
+  `).join('');
+}
+
+function renderUpcoming() {
+  const list = document.getElementById('upcoming-list');
+  const pending = stats.pending || [];
+  if (!pending.length) {
+    list.innerHTML = `<div class="empty-state" style="padding:20px;"><p style="font-size:13px;">No upcoming assignments</p></div>`;
+    return;
+  }
+  list.innerHTML = pending.map(a => {
+    const subject = appData.subjects.find(s => s.id === a.subject_id);
+    return `<div class="upcoming-item" data-motion>
+      <div>
+        <div class="upcoming-name">${a.name}</div>
+        <div class="upcoming-sub">${subject ? subject.name : ''}</div>
+      </div>
+      <span class="due-badge">${a.due_date || 'No date'}</span>
+    </div>`;
+  }).join('');
+}
+
+// Subjects view
+function renderSubjectsView() {
+  renderSubjectCards('subjects-grid');
+}
+
+// Assignments view
+function renderAssignmentsView() {
+  const tbody = document.getElementById('assignments-table-body');
+  const filterSid = document.getElementById('filter-subject').value;
+  let assignments = [...appData.assignments];
+  if (filterSid) assignments = assignments.filter(a => a.subject_id === filterSid);
+
+  if (!assignments.length) {
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-muted);">No assignments yet.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = assignments.map(a => {
+    const subject = appData.subjects.find(s => s.id === a.subject_id);
+    const pct = a.graded ? a.score : null;
+    const scoreClass = pct === null ? '' : pct >= 90 ? 'score-good' : pct >= 70 ? 'score-mid' : 'score-bad';
+    const scoreDisplay = a.graded
+      ? `<span class="score-cell ${scoreClass}">${a.score}%</span>`
+      : `<span class="pending-badge">Pending</span>`;
+    return `<tr data-motion>
+      <td><span style="font-weight:500;">${a.name}</span></td>
+      <td>${subject ? `<span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:${subject.color}"></span>${subject.name}</span>` : '—'}</td>
+      <td><span class="type-badge">${a.type}</span></td>
+      <td>${scoreDisplay}</td>
+      <td style="color:var(--text-muted);font-size:13px;">${a.due_date || '—'}</td>
+      <td>
+        ${!a.graded ? `<button class="btn btn-ghost btn-sm" onclick="gradeAssignment('${a.id}')">Grade</button>` : ''}
+        <button class="btn btn-danger" onclick="deleteAssignment('${a.id}')">Delete</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function updateFilterSubjectSelect() {
+  const sel = document.getElementById('filter-subject');
+  const current = sel.value;
+  sel.innerHTML = `<option value="">All Subjects</option>` +
+    appData.subjects.map(s => `<option value="${s.id}" ${s.id === current ? 'selected' : ''}>${s.name}</option>`).join('');
+}
+
+// What-if
+function renderWhatIfSelects() {
+  const sel = document.getElementById('whatif-subject');
+  const current = sel.value;
+  sel.innerHTML = `<option value="">Choose a subject...</option>` +
+    appData.subjects.map(s => `<option value="${s.id}" ${s.id === current ? 'selected' : ''}>${s.name}</option>`).join('');
+}
+
+function loadWhatIf() {
+  const sid = document.getElementById('whatif-subject').value;
+  if (!sid) { document.getElementById('whatif-current').style.display = 'none'; document.getElementById('whatif-result-panel').style.display = 'none'; return; }
+  const subject = appData.subjects.find(s => s.id === sid);
+  document.getElementById('whatif-current').style.display = 'block';
+  document.getElementById('whatif-result-panel').style.display = 'block';
+  document.getElementById('whatif-current-grade').textContent = subject.average !== null ? subject.average + '%' : 'No grades yet';
+  document.getElementById('whatif-inputs').innerHTML = '';
+  addWhatIfRow();
+  calcWhatIf();
+  animateCurrentView();
+}
+
+let whatifRows = [];
+function addWhatIfRow() {
+  const id = Date.now();
+  whatifRows.push(id);
+  const div = document.createElement('div');
+  div.className = 'whatif-row';
+  div.id = 'wir-' + id;
+  div.innerHTML = `
+    <input type="number" class="form-input" style="flex:1" placeholder="Score %" min="0" max="100" oninput="calcWhatIf()">
+    <input type="number" class="form-input" style="width:80px" placeholder="Wt" value="1" min="0.1" step="0.1" oninput="calcWhatIf()">
+    <button class="btn btn-danger" onclick="removeWhatIfRow(${id})" style="white-space:nowrap;">✕</button>`;
+  document.getElementById('whatif-inputs').appendChild(div);
+}
+
+function removeWhatIfRow(id) {
+  document.getElementById('wir-' + id)?.remove();
+  calcWhatIf();
+}
+
+function calcWhatIf() {
+  const sid = document.getElementById('whatif-subject').value;
+  if (!sid) return;
+  const subject = appData.subjects.find(s => s.id === sid);
+  const existing = (subject.assignments || []).filter(a => a.graded);
+
+  let totalWeight = existing.reduce((s, a) => s + (a.weight || 1), 0);
+  let weightedSum = existing.reduce((s, a) => s + a.score * (a.weight || 1), 0);
+
+  document.querySelectorAll('#whatif-inputs .whatif-row').forEach(row => {
+    const inputs = row.querySelectorAll('input');
+    const score = parseFloat(inputs[0].value);
+    const weight = parseFloat(inputs[1].value) || 1;
+    if (!isNaN(score)) { totalWeight += weight; weightedSum += score * weight; }
+  });
+
+  const projected = totalWeight > 0 ? weightedSum / totalWeight : null;
+  const letter = projected !== null ? getLetter(projected) : '—';
+  document.getElementById('whatif-projected').textContent = projected !== null ? projected.toFixed(1) + '%' : '—';
+  document.getElementById('whatif-letter').textContent = letter;
+  document.getElementById('whatif-bar').style.width = (projected || 0) + '%';
+
+  if (subject.average !== null && projected !== null) {
+    const diff = projected - subject.average;
+    const sign = diff >= 0 ? '+' : '';
+    document.getElementById('whatif-change').textContent = `Change from current: ${sign}${diff.toFixed(1)}%`;
+  } else {
+    document.getElementById('whatif-change').textContent = '';
+  }
+  calculateNeeded();
+}
+
+function calculateNeeded() {
+  const sid = document.getElementById('whatif-subject').value;
+  if (!sid) return;
+  const subject = appData.subjects.find(s => s.id === sid);
+  const existing = (subject.assignments || []).filter(a => a.graded);
+  const target = parseFloat(document.getElementById('goal-target').value);
+  const remaining = parseInt(document.getElementById('goal-remaining').value);
+  const el = document.getElementById('goal-result');
+  if (!target || !remaining) { el.textContent = ''; return; }
+
+  const totalWeight = existing.reduce((s, a) => s + (a.weight || 1), 0);
+  const weightedSum = existing.reduce((s, a) => s + a.score * (a.weight || 1), 0);
+  const neededTotal = target * (totalWeight + remaining) - weightedSum;
+  const neededPerAssignment = neededTotal / remaining;
+
+  if (neededPerAssignment <= 100) {
+    el.innerHTML = `You need <strong style="color:var(--accent)">${Math.ceil(neededPerAssignment)}%</strong> on each remaining assignment to reach ${target}%.`;
+  } else {
+    el.innerHTML = `<span style="color:var(--red)">Not achievable — you'd need ${Math.ceil(neededPerAssignment)}% per assignment.</span>`;
+  }
+}
+
+function getLetter(g) {
+  if (g >= 93) return 'A'; if (g >= 90) return 'A-'; if (g >= 87) return 'B+';
+  if (g >= 83) return 'B'; if (g >= 80) return 'B-'; if (g >= 77) return 'C+';
+  if (g >= 73) return 'C'; if (g >= 70) return 'C-'; if (g >= 67) return 'D+';
+  if (g >= 65) return 'D'; return 'F';
+}
+
+// API calls
+async function addSubject() {
+  const name = document.getElementById('sub-name').value.trim();
+  if (!name) { toast('Please enter a subject name.', 'error'); return; }
+  const credits = parseInt(document.getElementById('sub-credits').value) || 3;
+  const goal = parseFloat(document.getElementById('sub-goal').value);
+
+  const res = await fetch('/api/subjects', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, credits, color: selectedColor })
+  });
+  const subject = await res.json();
+
+  if (goal) {
+    await fetch(`/api/goals/${subject.id}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ goal })
+    });
+  }
+
+  closeModal('add-subject');
+  document.getElementById('sub-name').value = '';
+  document.getElementById('sub-goal').value = '';
+  await refreshData();
+  toast(`"${name}" added successfully!`);
+}
+
+async function deleteSubject(id) {
+  if (!confirm('Delete this subject and all its assignments?')) return;
+  await fetch(`/api/subjects/${id}`, { method: 'DELETE' });
+  await refreshData();
+  toast('Subject deleted.');
+}
+
+async function addAssignment() {
+  const name = document.getElementById('asgn-name').value.trim();
+  const sid = document.getElementById('asgn-subject').value;
+  const score = parseFloat(document.getElementById('asgn-score').value);
+  const weight = parseFloat(document.getElementById('asgn-weight').value) || 1;
+  const type = document.getElementById('asgn-type').value;
+  const due = document.getElementById('asgn-due').value;
+  const graded = document.getElementById('asgn-graded').value === 'true';
+
+  if (!name || !sid) { toast('Please fill in all required fields.', 'error'); return; }
+
+  await fetch('/api/assignments', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, subject_id: sid, score: graded ? score : null, weight, type, due_date: due, graded })
+  });
+
+  closeModal('add-assignment');
+  document.getElementById('asgn-name').value = '';
+  document.getElementById('asgn-score').value = '';
+  await refreshData();
+  toast(`"${name}" added!`);
+}
+
+async function deleteAssignment(id) {
+  await fetch(`/api/assignments/${id}`, { method: 'DELETE' });
+  await refreshData();
+  toast('Assignment removed.');
+}
+
+async function gradeAssignment(id) {
+  const score = prompt('Enter score (0-100):');
+  if (score === null) return;
+  const num = parseFloat(score);
+  if (isNaN(num) || num < 0 || num > 100) { toast('Invalid score.', 'error'); return; }
+  await fetch(`/api/assignments/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ score: num, graded: true })
+  });
+  await refreshData();
+  toast('Grade recorded!');
+}
+
+function openSubjectDetail(sid) {
+  const subject = appData.subjects.find(s => s.id === sid);
+  if (!subject) return;
+  // Pre-select in assignments view and navigate
+  showView('assignments');
+  document.getElementById('filter-subject').value = sid;
+  renderAssignmentsView();
+}
+
+function openAddAssignmentModal() {
+  const sel = document.getElementById('asgn-subject');
+  sel.innerHTML = appData.subjects.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+  openModal('add-assignment');
+}
+
+// Modal helpers
+function openModal(id) {
+  document.getElementById(`modal-${id}`).classList.add('open');
+}
+
+function closeModal(id) {
+  document.getElementById(`modal-${id}`).classList.remove('open');
+}
+
+function selectColor(el) {
+  document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedColor = el.dataset.color;
+}
+
+// Navigation
+function showView(name) {
+  currentView = name;
+  document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(`view-${name}`).classList.add('active');
+  document.getElementById(`nav-${name}`).classList.add('active');
+  animateCurrentView();
+}
+
+// Toast
+function toast(msg, type = 'success') {
+  const container = document.getElementById('toast-container');
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.innerHTML = `<span>${type === 'success' ? '✓' : '✕'}</span> ${msg}`;
+  container.appendChild(el);
+  setTimeout(() => el.remove(), 3000);
+}
+
+// Click outside modal to close
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay) {
+      const id = overlay.id.replace('modal-', '');
+      closeModal(id);
+    }
+  });
+});
+
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,104 @@
+<svg width="1280" height="640" viewBox="0 0 1280 640" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="88" y1="68" x2="1180" y2="596" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0D0F14"/>
+      <stop offset="1" stop-color="#171C27"/>
+    </linearGradient>
+    <linearGradient id="line" x1="204" y1="420" x2="1074" y2="182" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#C8F04E"/>
+      <stop offset="0.5" stop-color="#5DE8C8"/>
+      <stop offset="1" stop-color="#F06EC8"/>
+    </linearGradient>
+    <linearGradient id="chip" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#1A1E28"/>
+      <stop offset="1" stop-color="#23293A"/>
+    </linearGradient>
+    <filter id="blurGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="18"/>
+    </filter>
+    <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="14" stdDeviation="20" flood-color="#000000" flood-opacity="0.28"/>
+    </filter>
+  </defs>
+
+  <rect width="1280" height="640" rx="36" fill="url(#bg)"/>
+
+  <g opacity="0.12">
+    <path d="M0 120H1280" stroke="#FFFFFF"/>
+    <path d="M0 240H1280" stroke="#FFFFFF"/>
+    <path d="M0 360H1280" stroke="#FFFFFF"/>
+    <path d="M0 480H1280" stroke="#FFFFFF"/>
+    <path d="M160 0V640" stroke="#FFFFFF"/>
+    <path d="M320 0V640" stroke="#FFFFFF"/>
+    <path d="M480 0V640" stroke="#FFFFFF"/>
+    <path d="M640 0V640" stroke="#FFFFFF"/>
+    <path d="M800 0V640" stroke="#FFFFFF"/>
+    <path d="M960 0V640" stroke="#FFFFFF"/>
+    <path d="M1120 0V640" stroke="#FFFFFF"/>
+  </g>
+
+  <circle cx="1044" cy="126" r="88" fill="#C8F04E" opacity="0.14" filter="url(#blurGlow)">
+    <animate attributeName="cx" values="1044;1090;1044" dur="9s" repeatCount="indefinite"/>
+    <animate attributeName="cy" values="126;172;126" dur="9s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="1110" cy="470" r="104" fill="#5DE8C8" opacity="0.10" filter="url(#blurGlow)">
+    <animate attributeName="cx" values="1110;1040;1110" dur="11s" repeatCount="indefinite"/>
+    <animate attributeName="cy" values="470;432;470" dur="11s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="906" cy="562" r="92" fill="#F06EC8" opacity="0.12" filter="url(#blurGlow)">
+    <animate attributeName="cy" values="562;518;562" dur="8s" repeatCount="indefinite"/>
+  </circle>
+
+  <g filter="url(#soft)">
+    <rect x="64" y="76" width="1152" height="488" rx="28" fill="#121620" stroke="#2A3142"/>
+  </g>
+
+  <g opacity="0.95">
+    <text x="120" y="170" fill="#C8F04E" font-family="Segoe UI, Arial, sans-serif" font-size="20" letter-spacing="4">ACADEMIC TRACKER</text>
+    <text x="120" y="254" fill="#F4F7FB" font-family="Georgia, 'Times New Roman', serif" font-size="72" font-weight="700">GradeVault</text>
+    <text x="120" y="300" fill="#8E99B0" font-family="Segoe UI, Arial, sans-serif" font-size="24">Track subjects, assignments, GPA, goals, and projections in one clean Flask dashboard.</text>
+  </g>
+
+  <g>
+    <rect x="120" y="348" width="170" height="42" rx="21" fill="url(#chip)" stroke="#2A3142"/>
+    <rect x="304" y="348" width="160" height="42" rx="21" fill="url(#chip)" stroke="#2A3142"/>
+    <rect x="478" y="348" width="158" height="42" rx="21" fill="url(#chip)" stroke="#2A3142"/>
+    <text x="154" y="375" fill="#E8ECF4" font-family="Segoe UI, Arial, sans-serif" font-size="18">Flask API</text>
+    <text x="336" y="375" fill="#E8ECF4" font-family="Segoe UI, Arial, sans-serif" font-size="18">JSON Storage</text>
+    <text x="508" y="375" fill="#E8ECF4" font-family="Segoe UI, Arial, sans-serif" font-size="18">What-If Tools</text>
+  </g>
+
+  <g transform="translate(760 164)">
+    <rect width="360" height="248" rx="26" fill="#171C27" stroke="#31394E"/>
+    <rect x="24" y="24" width="148" height="84" rx="18" fill="#11151D" stroke="#2A3142"/>
+    <rect x="188" y="24" width="148" height="84" rx="18" fill="#11151D" stroke="#2A3142"/>
+    <rect x="24" y="124" width="312" height="100" rx="18" fill="#11151D" stroke="#2A3142"/>
+
+    <text x="40" y="52" fill="#7E8AA4" font-family="Segoe UI, Arial, sans-serif" font-size="13">Cumulative GPA</text>
+    <text x="206" y="52" fill="#7E8AA4" font-family="Segoe UI, Arial, sans-serif" font-size="13">Upcoming</text>
+    <text x="40" y="152" fill="#7E8AA4" font-family="Segoe UI, Arial, sans-serif" font-size="13">Grade trend</text>
+
+    <text x="40" y="94" fill="#C8F04E" font-family="Georgia, 'Times New Roman', serif" font-size="38" font-weight="700">3.78</text>
+    <text x="206" y="94" fill="#5DE8C8" font-family="Georgia, 'Times New Roman', serif" font-size="38" font-weight="700">04</text>
+
+    <g transform="translate(42 196)">
+      <path d="M0 12 C28 12, 36 52, 72 52 C108 52, 124 0, 160 0 C196 0, 210 34, 244 34" stroke="url(#line)" stroke-width="6" stroke-linecap="round" fill="none">
+        <animate attributeName="stroke-dasharray" values="0 520;520 0" dur="2.2s" repeatCount="1" fill="freeze"/>
+      </path>
+      <circle cx="72" cy="52" r="7" fill="#C8F04E">
+        <animate attributeName="r" values="7;9;7" dur="2.6s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="160" cy="0" r="7" fill="#5DE8C8">
+        <animate attributeName="r" values="7;10;7" dur="2.2s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="244" cy="34" r="7" fill="#F06EC8">
+        <animate attributeName="r" values="7;9;7" dur="2.8s" repeatCount="indefinite"/>
+      </circle>
+    </g>
+  </g>
+
+  <g opacity="0.9">
+    <text x="120" y="456" fill="#E8ECF4" font-family="Segoe UI, Arial, sans-serif" font-size="17">Built with Python, Flask, and a single-page dashboard.</text>
+    <text x="120" y="488" fill="#7E8AA4" font-family="Segoe UI, Arial, sans-serif" font-size="17">Animated README banner is local to the repo, so it stays portable on GitHub.</text>
+  </g>
+</svg>
